@@ -3,10 +3,12 @@
 
 Script that allows creating virtual machines integrating cloud-config in libvirt/kvm environments quickly and easily
 
+
 ## Scenario
 
 AutoVM is intended to create virtual machines that have two network interfaces (one public and one private) ideally where you have a bare metal server.
 Although the script was ported on Ubuntu Server 22.04 it should be agnostic for any Linux distribution that uses libvirt/kvm.
+
 
 ## Explanation
 
@@ -14,9 +16,10 @@ AutoVM creates the virtual machine assuming that the location of the libvirt dir
 
 With all this in mind, the script creates a directory where both the disk drive, the cloud-config files and the iso generated for the boot with the required configurations are stored.
 By default, 2 users are created, one with password access (just in case there is a problem) and another that can only be accessed through ssh keys, which in this case is the user: ubuntu, it is recommended to disable access after configuring the VMs ssh for passwords.
-As part of the cloud-config, some packages and services are installed by default, in this case docker and nfs, but it can be adjusted to any need, you just need to modify the script to achieve it.
+As part of the cloud-config, some packages and services are installed by default, in this case docker and nfs, but it can be adjusted to any need, you just need to modify the script or the right files to achieve it.
 
 As final **warning** : when a VM is created, their IP is removed from the **public_ip.txt** and **private_ip.txt** files and you will have the assigned ips to the VM in the **$HOSTNAME-VM.txt** file created in the directory.
+
 
 ## Configuration
 
@@ -59,13 +62,13 @@ Modify each .txt included in the project according to your needs
 > **runcmd.txt** : extra commands to run at first boot
 
 
-
 ## Usage
 
     create_vm.sh HOSTNAME DISK_SIZE(G - INT) RAM_SIZE(MB - INT) CPU_SIZE(INT)
     
     Example: sh create_vm.sh rubicon 100G 16384 8
-    
+
+
 ## Logging
 
 	With each VM created a new file will be placed inside the directory with this format: $HOSTNAME-VM.txt, you can find the information about the new VM and also the commands used for their creation.
@@ -868,10 +871,16 @@ Modify each .txt included in the project according to your needs
 	winxp
 
 
-## Additional Notes
+## Additional notes
 
-I have been using this script since ubuntu 18, although I had not made it as variable as this version in such a way that anyone could use it.
-That being said, I have always preferred **Ubuntu** as the main distro and in previous versions I have not had problems with the VMs, although in this case I noticed that the nodes were slow to restart, so after some research I found that the service **systemd-networkd-wait-online.service** took up to 2 minutes and therefore a simple reboot was a tedious process. To solve the problem, I had to add an any to the service in question through the **runcmd** using a sed, maybe not the ideal solution but I don't need to wait time to be sure that the network works although if something happens in your case you should comment that line and do the respective debug.
+I have been using this script since **ubuntu** 18, although I had not made it as variable as this version in such a way that anyone could use it.
+
+That being said, I have always preferred **ubuntu** as the main distro and in previous versions I have not had problems with the VMs, although in this case I noticed that the nodes were slow to restart, so after some research I found that the service **systemd-networkd-wait-online.service** took up to 2 minutes and therefore a simple reboot was a tedious process. To solve the problem, I had to add an **any** parameter to the service in question through the **runcmd** using a sed command, maybe not the ideal solution but I don't need to wait time to be sure that the network works although if something happens in your case you should comment that line and do the respective debug.
+
+
+## Reference: installing libvirt/KVM inside ubuntu
+
+As a reference, i wrote a document explaining howto install and configure libvirt inside **ubuntu** 22.04, you can review it [here](https://github.com/alfonsodg/autovm/blob/main/LIBVIRT-UBUNTU.md)
 
 
 ## Contributors ✨
