@@ -67,6 +67,8 @@ Modify each .txt included in the project according to your needs
     create_vm.sh HOSTNAME DISK_SIZE(G - INT) RAM_SIZE(MB - INT) CPU_SIZE(INT)
     
     Example: sh create_vm.sh rubicon 100G 16384 8
+    
+    Note: you just need the HOSTNAME as mandatory, by default creates a VM with 100GB DISK, 8 GB RAM and 4 CORES
 
 
 ## Logging

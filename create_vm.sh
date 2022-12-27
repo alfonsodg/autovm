@@ -36,7 +36,7 @@ if [ $# -gt 0 ]; then
     then
         export VMSIZE="100G"
     else
-        export VMSIZE="$2"
+        export VMSIZE="$2G"
     fi
     if [ -z "$3" ]
     then
@@ -189,6 +189,6 @@ $ROUTING
     " > $HOSTNAME-VM.txt
 
 else
-    echo "Usage: create_vm.sh HOSTNAME DISK_SIZE(G - INT) RAM_SIZE(MB -INT) CPU_SIZE(INT)"
-    echo "Example: sh create_vm.sh rubicon 100G 16384 8"
+    echo "Usage: create_vm.sh HOSTNAME DISK_SIZE(GB - INT) RAM_SIZE(MB -INT) CPU_SIZE(INT)"
+    echo "Example: sh create_vm.sh rubicon 100 16384 8"
 fi
