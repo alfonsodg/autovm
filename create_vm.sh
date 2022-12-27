@@ -5,12 +5,12 @@ if [ $# -gt 0 ]; then
     sed -i '1d' private_ip.txt
     PUBLIC_IP=$(head -n 1 public_ip.txt)
     sed -i '1d' public_ip.txt
-    GATEWAY=$(head -n 1 gateway.txt)
     export NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
     export HOSTNAME="$1"
     export IP_ADDR1="$PRIVATE_IP"
     export IP_ADDR2="$PUBLIC_IP"
-    export GW="$GATEWAY"
+    export GW=$(head -n 1 gateway.txt)
+    export GW_PRIVATE=$(head -n 1 gw-private.txt)
     export NMPR=$(head -n 1 netmask-private.txt)
     export NMPU=$(head -n 1 netmask-public.txt)
     export DNSPR=$(head -n 1 dns-private.txt)
@@ -130,7 +130,12 @@ ethernets:
     nameservers:
         addresses: $DNSPR
     routes:
-$ROUTING
+        - to: 10.0.0.0/8
+          via: $GW_PRIVATE
+        - to: 161.26.0.0/16
+          via: $GW_PRIVATE
+        - to: 166.8.0.0/14
+          via: $GW_PRIVATE
 
   enp2s0:
      match:

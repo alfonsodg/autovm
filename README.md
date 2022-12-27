@@ -33,7 +33,9 @@ Modify each .txt included in the project according to your needs
 
 > **gateway.txt** : gateway for public interface
 
-> **routing.txt** : routing for private interface
+> **gw-private.txt** : gateway for private interface
+
+> **routing.txt** : routing for private interface (unused)
 
 > **netmask-private.txt** : netmask for private interface
 
