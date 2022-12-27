@@ -164,6 +164,8 @@ $ROUTING
     --import --network network=private-bridge,model=virtio,mac=$MAC_ADDR1 \
     --network network=public-bridge,model=virtio,mac=$MAC_ADDR2 --noautoconsole --keymap=es
     
+    virsh autostart $HOSTNAME
+    
 # Logging
 
     echo "Logging..."
