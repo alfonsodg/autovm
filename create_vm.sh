@@ -7,6 +7,7 @@ if [ $# -gt 0 ]; then
     #sed -i '1d' public_ip.txt
     PUBLIC_ALT=$(head -n 1 public_alt.txt)
     #sed -i '1d' public_alt.txt
+    PUBLIC_MAC=$(head -n 1 public_mac.txt)
     export TEST="${*:5}"
     export IP_ADDR_ALT=""
     export NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
@@ -16,7 +17,12 @@ if [ $# -gt 0 ]; then
     export NMPR=$(head -n 1 netmask-private.txt)
     export NMPU=$(head -n 1 netmask-public.txt)
     export MAC_ADDR1=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
-    export MAC_ADDR2=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
+    if [ -z "$PUBLIC_MAC" ]
+    then
+        export MAC_ADDR2=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
+    else
+        export MAC_ADDR2="$PUBLIC_MAC"
+    fi
     export CLOUDIMG=$(head -n 1 linuxbase.txt)
     export ROUTE_PU=$(cat routing_pu.txt)
     export ROUTE_PR=$(cat routing_pr.txt)
@@ -53,7 +59,6 @@ if [ $# -gt 0 ]; then
     else
         export CPU="$4"
     fi
-
     if [ ! -z "$PUBLIC_ALT" ]
     then
           export IP_ADDR_ALT="       - $PUBLIC_ALT"
@@ -160,6 +165,11 @@ $DNS_PU
     sed -i '1d' private_ip.txt
     sed -i '1d' public_ip.txt
     sed -i '1d' public_alt.txt
+
+    if [ ! -z "$PUBLIC_MAC" ]
+    then
+        sed -i '1d' public_mac.txt
+    fi
 
     echo "VM image creation"
     sleep 4
