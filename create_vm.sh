@@ -2,25 +2,28 @@
 
 if [ $# -gt 0 ]; then
     PRIVATE_IP=$(head -n 1 private_ip.txt)
-    sed -i '1d' private_ip.txt
+    #sed -i '1d' private_ip.txt
     PUBLIC_IP=$(head -n 1 public_ip.txt)
-    sed -i '1d' public_ip.txt
+    #sed -i '1d' public_ip.txt
+    PUBLIC_ALT=$(head -n 1 public_alt.txt)
+    #sed -i '1d' public_alt.txt
     export TEST="${*:5}"
+    export PUBLIC_ALT=""
     export NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
     export HOSTNAME="$1"
     export IP_ADDR1="$PRIVATE_IP"
     export IP_ADDR2="$PUBLIC_IP"
-    #export GW=$(head -n 1 gateway.txt)
-    #export GW_PRIVATE=$(head -n 1 gw-private.txt)
     export NMPR=$(head -n 1 netmask-private.txt)
     export NMPU=$(head -n 1 netmask-public.txt)
-    export DNSPR=$(head -n 1 dns-private.txt)
-    export DNSPU=$(head -n 1 dns-public.txt)
     export MAC_ADDR1=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export MAC_ADDR2=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export CLOUDIMG=$(head -n 1 linuxbase.txt)
+    export ADDR_PU=$(cat addr_pu.txt)
+    export ADDR_PR=$(cat addr_pr.txt)
     export ROUTE_PU=$(cat routing_pu.txt)
     export ROUTE_PR=$(cat routing_pr.txt)
+    export DNS_PU=$(cat dns_pu.txt)
+    export DNS_PR=$(cat dns_pr.txt)    
     export DEFUSER=$(head -n 1 defaultuser.txt)
     export DEFPWD=$(head -n 1 defaultpasswd.txt)
     export PUB_KEY=$(cat main-ssh-key.txt)
@@ -53,7 +56,10 @@ if [ $# -gt 0 ]; then
         export CPU="$4"
     fi
 
-
+    if [ -z "$PUBLIC_ALT" ]
+    then
+          export IP_ADDR_ALT="      - $PUBLIC_ALT"
+    fi
     
 # Creating the VM directory 
    
@@ -131,7 +137,8 @@ ethernets:
     addresses:
       - $IP_ADDR1/$NMPR
     nameservers:
-      addresses: $DNSPR
+      addresses: 
+$DNS_PR
     routes:
 $ROUTE_PR
 
@@ -143,13 +150,18 @@ $ROUTE_PR
      routes: 
 $ROUTE_PU
      nameservers:
-       addresses: $DNSPU
+       addresses: 
+$DNS_PU
 " > $VMDIR/network-config-v2.yaml
 
 # Integration and installation for VMs
 
     if [ "$TEST" != "TEST" ]
     then
+    sed -i '1d' private_ip.txt
+    sed -i '1d' public_ip.txt
+    sed -i '1d' public_alt.txt
+
     echo "VM image creation"
     sleep 4
     qemu-img convert -f qcow2 -O qcow2 /var/lib/libvirt/images/base/$CLOUDIMG.qcow2 $VMDIR/$VMDISK
