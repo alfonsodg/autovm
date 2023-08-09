@@ -18,7 +18,8 @@ if [ $# -gt 0 ]; then
     export MAC_ADDR1=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export MAC_ADDR2=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export CLOUDIMG=$(head -n 1 linuxbase.txt)
-    export ROUTING=$(cat routing.txt)
+    export ROUTE_PU=$(cat routing_pu.txt)
+    export ROUTE_PR=$(cat routing_pr.txt)
     export DEFUSER=$(head -n 1 defaultuser.txt)
     export DEFPWD=$(head -n 1 defaultpasswd.txt)
     export PUB_KEY=$(cat main-ssh-key.txt)
@@ -124,29 +125,23 @@ version: 2
 ethernets:
   enp1s0:
     match:
-        macaddress: \"$MAC_ADDR1\"
+      macaddress: \"$MAC_ADDR1\"
     addresses:
-    - $IP_ADDR1/$NMPR
+      - $IP_ADDR1/$NMPR
     nameservers:
-        addresses: $DNSPR
+      addresses: $DNSPR
     routes:
-        - to: 10.0.0.0/8
-          via: $GW_PRIVATE
-        - to: 161.26.0.0/16
-          via: $GW_PRIVATE
-        - to: 166.8.0.0/14
-          via: $GW_PRIVATE
+$ROUTE_PR
 
   enp2s0:
      match:
-         macaddress: \"$MAC_ADDR2\"
+       macaddress: \"$MAC_ADDR2\"
      addresses:
-     - $IP_ADDR2/$NMPU
+       - $IP_ADDR2/$NMPU
      routes: 
-         - to: default
-           via: $GW
+$ROUTE_PU
      nameservers:
-        addresses: $DNSPU
+       addresses: $DNSPU
 " > $VMDIR/network-config-v2.yaml
 
 # Integration and installation for VMs
