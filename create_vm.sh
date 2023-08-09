@@ -5,12 +5,13 @@ if [ $# -gt 0 ]; then
     sed -i '1d' private_ip.txt
     PUBLIC_IP=$(head -n 1 public_ip.txt)
     sed -i '1d' public_ip.txt
+    export TEST="${*:5}"
     export NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
     export HOSTNAME="$1"
     export IP_ADDR1="$PRIVATE_IP"
     export IP_ADDR2="$PUBLIC_IP"
-    export GW=$(head -n 1 gateway.txt)
-    export GW_PRIVATE=$(head -n 1 gw-private.txt)
+    #export GW=$(head -n 1 gateway.txt)
+    #export GW_PRIVATE=$(head -n 1 gw-private.txt)
     export NMPR=$(head -n 1 netmask-private.txt)
     export NMPU=$(head -n 1 netmask-public.txt)
     export DNSPR=$(head -n 1 dns-private.txt)
@@ -51,7 +52,8 @@ if [ $# -gt 0 ]; then
     else
         export CPU="$4"
     fi
-    
+
+
     
 # Creating the VM directory 
    
@@ -146,25 +148,28 @@ $ROUTE_PU
 
 # Integration and installation for VMs
 
-	echo "VM image creation"
-	sleep 4
-	qemu-img convert -f qcow2 -O qcow2 /var/lib/libvirt/images/base/$CLOUDIMG.qcow2 $VMDIR/$VMDISK
+    if [ "$TEST" != "TEST" ]
+    then
+    echo "VM image creation"
+    sleep 4
+    qemu-img convert -f qcow2 -O qcow2 /var/lib/libvirt/images/base/$CLOUDIMG.qcow2 $VMDIR/$VMDISK
     qemu-img resize $VMDIR/$VMDISK $VMSIZE
 
-	echo "Generate cloud-init"
-	sleep 4
+    echo "Generate cloud-init"
+    sleep 4
     cloud-localds -v --network-config=$VMDIR/network-config-v2.yaml \
     $VMDIR/$HOSTNAME-cidata.iso $VMDIR/user-data.yaml $VMDIR/meta-data.yaml
 
-	echo "VM installation"
-	sleep 4
+    echo "VM installation"
+    sleep 4
     virt-install --connect qemu:///system --virt-type kvm --name $HOSTNAME --ram $RAM --vcpus=$CPU \
     --os-variant $CLOUDIMG --disk path=$VMDIR/$VMDISK,format=qcow2 \
     --disk $VMDIR/$HOSTNAME-cidata.iso,device=cdrom \
     --import --network network=private-bridge,model=virtio,mac=$MAC_ADDR1 \
     --network network=public-bridge,model=virtio,mac=$MAC_ADDR2 --noautoconsole --keymap=es
-    
+
     virsh autostart $HOSTNAME
+    fi
     
 # Logging
 
@@ -175,10 +180,10 @@ $ROUTE_PU
     HOSTNAME = $HOSTNAME
     IP PRIVATE = $IP_ADDR1
     IP PUBLIC =  $IP_ADDR2\
-    
+
     qemu-img convert -f qcow2 -O qcow2 /var/lib/libvirt/images/base/$CLOUDIMG.qcow2 $VMDIR/$VMDISK
     qemu-img resize $VMDIR/$VMDISK $VMSIZE
-    
+
     cloud-localds -v --network-config=$VMDIR/network-config-v2.yaml \
     $VMDIR/$HOSTNAME-cidata.iso $VMDIR/user-data.yaml $VMDIR/meta-data.yaml
 
@@ -191,6 +196,8 @@ $ROUTE_PU
     " > $HOSTNAME-VM.txt
 
 else
-    echo "Usage: create_vm.sh HOSTNAME DISK_SIZE(GB - INT) RAM_SIZE(MB -INT) CPU_SIZE(INT)"
-    echo "Example: sh create_vm.sh rubicon 100 16384 8"
+    echo "Usage: create_vm.sh HOSTNAME DISK_SIZE(GB - INT) RAM_SIZE(MB -INT) CPU_SIZE(INT) [TEST*]"
+    echo "Example: sh create_vm.sh rubicon 100 16384 8 || sh create_vm.sh rubicon 100 16384 8 TEST"
+    echo "By default: sh create_vm.sh rubicon creates a 100GB disk, 8GB RAM and 4 cores"
+    echo "(*) TEST is optional and allows create the configuration files without deploy the VM"
 fi
