@@ -18,7 +18,7 @@ With all this in mind, the script creates a directory where both the disk drive,
 By default, 2 users are created, one with password access (just in case there is a problem) and another that can only be accessed through ssh keys, which in this case is the user: ubuntu, it is recommended to disable access after configuring the VMs ssh for passwords.
 As part of the cloud-config, some packages and services are installed by default, in this case docker and nfs, but it can be adjusted to any need, you just need to modify the script or the right files to achieve it.
 
-As final **warning** : when a VM is created, their IP is removed from the **public_ip.txt** and **private_ip.txt** files and you will have the assigned ips to the VM in the **$HOSTNAME-VM.txt** file created in the directory.
+As final **warning** : when a VM is created, their IP is removed from the **public_ip.txt**, **private_ip.txt** and **public_alt.txt** files and you will have the assigned ips to the VM in the **$HOSTNAME-VM.txt** file created in the directory. The **public_ip.txt** can be any **ipv4** or **ipv6** address, if need both you can use **public_alt.txt**.
 
 
 ## Configuration
@@ -31,23 +31,23 @@ Modify each .txt included in the project according to your needs
 
 > **linuxbase.txt** : os variant, it is important that the base image is renamed exactly like the variant
 
-> **gateway.txt** : gateway for public interface
+> **routing_pu.txt** : routes for public interface
 
-> **gw-private.txt** : gateway for private interface
-
-> **routing.txt** : routing for private interface (unused)
+> **routing_pr.txt** : routes for private interface
 
 > **netmask-private.txt** : netmask for private interface
 
 > **netmask-public.txt** : netmask for public interface
 
-> **dns-private.txt** : dns for private interface
+> **dns_pr.txt** : dns for private interface
 
-> **dns-public.txt** : dns for public interface
+> **dns_pu.txt** : dns for public interface
 
 > **private_ip.txt** : private ips list
 
 > **public_ip.txt** : public ips list
+
+> **public_alt.txt** : alternate public ip (usually ipv6, unless you can just use public_ip for that too)
 
 > **main-ssh-key.txt** : ssh key of main user
 

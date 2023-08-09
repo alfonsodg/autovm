@@ -8,7 +8,7 @@ if [ $# -gt 0 ]; then
     PUBLIC_ALT=$(head -n 1 public_alt.txt)
     #sed -i '1d' public_alt.txt
     export TEST="${*:5}"
-    export PUBLIC_ALT=""
+    export IP_ADDR_ALT=""
     export NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
     export HOSTNAME="$1"
     export IP_ADDR1="$PRIVATE_IP"
@@ -18,8 +18,6 @@ if [ $# -gt 0 ]; then
     export MAC_ADDR1=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export MAC_ADDR2=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     export CLOUDIMG=$(head -n 1 linuxbase.txt)
-    export ADDR_PU=$(cat addr_pu.txt)
-    export ADDR_PR=$(cat addr_pr.txt)
     export ROUTE_PU=$(cat routing_pu.txt)
     export ROUTE_PR=$(cat routing_pr.txt)
     export DNS_PU=$(cat dns_pu.txt)
@@ -56,9 +54,9 @@ if [ $# -gt 0 ]; then
         export CPU="$4"
     fi
 
-    if [ -z "$PUBLIC_ALT" ]
+    if [ ! -z "$PUBLIC_ALT" ]
     then
-          export IP_ADDR_ALT="      - $PUBLIC_ALT"
+          export IP_ADDR_ALT="       - $PUBLIC_ALT"
     fi
     
 # Creating the VM directory 
@@ -147,6 +145,7 @@ $ROUTE_PR
        macaddress: \"$MAC_ADDR2\"
      addresses:
        - $IP_ADDR2/$NMPU
+$IP_ADDR_ALT
      routes: 
 $ROUTE_PU
      nameservers:
