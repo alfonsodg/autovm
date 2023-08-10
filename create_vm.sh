@@ -16,6 +16,7 @@ if [ $# -gt 0 ]; then
     export IP_ADDR2="$PUBLIC_IP"
     export NMPR=$(head -n 1 netmask-private.txt)
     export NMPU=$(head -n 1 netmask-public.txt)
+    export NMALT=$(head -n 1 netmask-alt.txt)
     export MAC_ADDR1=$(od -An -N6 -tx1 /dev/urandom | sed -e 's/^  *//' -e 's/  */:/g' -e 's/:$//' -e 's/^\(.\)[13579bdf]/\10/')
     if [ -z "$PUBLIC_MAC" ]
     then
@@ -61,7 +62,7 @@ if [ $# -gt 0 ]; then
     fi
     if [ ! -z "$PUBLIC_ALT" ]
     then
-          export IP_ADDR_ALT="       - $PUBLIC_ALT"
+          export IP_ADDR_ALT="       - $PUBLIC_ALT/$NMALT"
     fi
     
 # Creating the VM directory 
